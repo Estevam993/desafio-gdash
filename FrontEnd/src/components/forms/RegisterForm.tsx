@@ -3,22 +3,24 @@ import {Button} from "@/components/ui/button.tsx";
 import {Input} from "@/components/ui/input.tsx";
 import {Label} from "@/components/ui/label.tsx";
 import {useEffect} from "react";
-import type {LoginErrorType, LoginFormType} from '@/types/LoginFormTypes.ts'
+import type {RegisterErrorType, RegisterFormType} from '@/types/RegisterFormTypes.ts'
 import {useNavigate} from "react-router-dom";
-import useLoginServices from "../../services/UseLoginServices.tsx";
+import {useRegisterServices} from "@/services";
 
-export default function LoginForm() {
+export default function RegisterForm() {
   // ! hooks
   const navigate = useNavigate();
   const {
-    onChange, onSubmit, form, error, setError, canSubmit, setCanSubmit
-  } = useLoginServices()
+    onChange, onSubmit,
+    form, error, setError, canSubmit, setCanSubmit
+  } = useRegisterServices();
 
   // ! Effects
   useEffect(() => {
-    function validateForm(form: LoginFormType): LoginErrorType {
+    function validateForm(form: RegisterFormType): RegisterErrorType {
       return {
         email: form.email.includes("@") ? "" : "E-mail inválido",
+        name: form.name.length >= 3 ? "" : "Nome muito curto",
         password: form.password.length >= 6 ? "" : "Senha muito curta",
       }
     }
@@ -29,12 +31,12 @@ export default function LoginForm() {
     const hasErrors = Object.values(newErrors).some((err) => err !== "")
     setCanSubmit(hasErrors)
 
-  }, [form, setError])
+  }, [form, setCanSubmit, setError])
 
   return (
     <div className={'min-w-[18rem] w-[34rem]'}>
       <Card>
-        <h1 className={'font-bold text-2xl'}>Login</h1>
+        <h1 className={'font-bold text-2xl'}>Registro</h1>
         <CardContent>
           <form>
             <div className="flex flex-col gap-6">
@@ -48,6 +50,17 @@ export default function LoginForm() {
                   required
                 />
                 <text className={'text-start text-sm text-red-500'}>{error.email || ''}</text>
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Nome</Label>
+                <Input
+                  name="name"
+                  type="text"
+                  placeholder="João Silva"
+                  onChange={onChange}
+                  required
+                />
+                <text className={'text-start text-sm text-red-500'}>{error.name || ''}</text>
               </div>
               <div className="grid gap-2">
                 <div className="flex items-center">
@@ -67,18 +80,22 @@ export default function LoginForm() {
         <CardFooter className="flex-col gap-2">
           <Button
             type="submit"
-            className="w-full"
+            className="w-full cursor-pointer"
             onClick={async () => {
               await onSubmit(form)
             }}
             disabled={canSubmit}
           >
 
-            Login
+            Criar conta!
           </Button>
-          <Button variant="outline" className="w-full" onClick={() =>
-            navigate("/register")
-          }>Crie uma conta!</Button>
+          <Button
+            variant="outline"
+            className="w-full"
+            onClick={() => navigate("/")}
+          >
+            Já possuo uma conta
+          </Button>
         </CardFooter>
       </Card>
     </div>

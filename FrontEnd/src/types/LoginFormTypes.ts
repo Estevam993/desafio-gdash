@@ -8,4 +8,8 @@ type LoginErrorType = {
   password: string,
 }
 
-export type {LoginFormType, LoginErrorType}
+type LoginApiReturn = {
+  "access_token": string,
+}
+
+export type {LoginFormType, LoginErrorType, LoginApiReturn}
