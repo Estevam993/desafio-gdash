@@ -1,0 +1,66 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+    container_name: frontend
+    ports:
+      - "8080:80"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./backend
+    container_name: nestjs
+    environment:
+      MONGO_URL: "mongodb://mongo:27017/desafio-gdash"
+      PORT: 3000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - mongo
+
+  goqueue:
+    build:
+      context: ./queue
+    container_name: goqueue
+    environment:
+      RABBITMQ_URL: "amqp://admin:admin@rabbitmq:5672/"
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  mongo:
+    image: mongo:7
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongo_data:/data/db
+
+  python:
+    build:
+      context: ./python
+    container_name: python-producer
+    environment:
+      RABBITMQ_URL: "amqp://admin:admin@rabbitmq:5672/"
+      CITY_LAT: "-23.550520"
+      CITY_LON: "-46.633308"
+    depends_on:
+      - rabbitmq
+    restart: always
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: "admin"
+      RABBITMQ_DEFAULT_PASS: "admin"
+
+volumes:
+  mongo_data:

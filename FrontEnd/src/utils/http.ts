@@ -1,4 +1,3 @@
-
 import axios from "axios";
 import Cookies from 'js-cookie';
 
@@ -74,11 +73,13 @@ export const getRequest = async (config: ConfigType) => {
 
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+
+    throw new Error(message);
   }
 };
 
-export const deleteRequest = async (config) => {
+export const deleteRequest = async (config: ConfigType) => {
   const {url, headers} = config;
 
   const newHeaders = {...headers};
@@ -94,12 +95,14 @@ export const deleteRequest = async (config) => {
 
     return response.data;
   } catch (error) {
-    throw new Error(error.message);
+    const message = error instanceof Error ? error.message : 'Unknown error';
+
+    throw new Error(message);
   }
 };
 
 export const setCookie = (name: string, value: string, days = 7) => {
-  Cookies.set(name, value, { expires: days });
+  Cookies.set(name, value, {expires: days});
 };
 
 

@@ -5,7 +5,7 @@ import {Label} from "@/components/ui/label.tsx";
 import {useEffect} from "react";
 import type {LoginErrorType, LoginFormType} from '@/types/LoginFormTypes.ts'
 import {useNavigate} from "react-router-dom";
-import useLoginServices from "../../services/UseLoginServices.tsx";
+import useLoginServices from "../../services/useLoginServices.tsx";
 
 export default function LoginForm() {
   // ! hooks

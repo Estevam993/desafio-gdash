@@ -1,0 +1,11 @@
+requests
+APScheduler
+pydantic
+python-dotenv
+dotenv
+openmeteo-requests
+requests-cache 
+retry-requests 
+numpy 
+pandas
+pika

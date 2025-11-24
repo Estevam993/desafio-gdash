@@ -369,3 +369,10 @@ O Pull Request deve conter:
 
 Boa sorte! 🚀  
 Mostre sua capacidade de integrar múltiplas linguagens e serviços em uma aplicação moderna, escalável e inteligente — unindo **engenharia de dados**, **backend**, **frontend** e **IA aplicada**.
+
+# Comandos
+___
+Python:
+```bash
+pip install -r requirements.txt
+```
