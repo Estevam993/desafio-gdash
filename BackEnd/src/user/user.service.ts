@@ -5,6 +5,8 @@ import {InjectModel} from "@nestjs/mongoose";
 import {JwtService} from '@nestjs/jwt';
 import {Model} from "mongoose";
 import {CreateUserDto} from "./dto/create-user.dto";
+import validateUserReturnType from "./types/validateUserReturnType";
+import createUserReturnType from "./types/createUserReturnType";
 
 @Injectable()
 export class UserService {
@@ -18,11 +20,11 @@ export class UserService {
   async validateUser(
     email: string,
     password: string
-  ) {
+  ): Promise<validateUserReturnType> {
     const user: User | null = await this.userModel.findOne({email}).exec();
 
     if (user) {
-      const isPasswordValid = compareSync(password, user.password);
+      const isPasswordValid: boolean = compareSync(password, user.password);
 
       if (!isPasswordValid) {
         throw new UnauthorizedException('Senha inválida');
@@ -52,7 +54,7 @@ export class UserService {
     };
   }
 
-  async create(createUserDto: CreateUserDto): Promise<any> {
+  async create(createUserDto: CreateUserDto): Promise<createUserReturnType> {
 
     try {
       const createdUser = new this.userModel(createUserDto);
@@ -89,7 +91,7 @@ export class UserService {
     }
   }
 
-  async verifyAccessToken(accessToken: string) {
+  async verifyAccessToken(accessToken: string): Promise<{ statusCode: number }> {
     try {
       this.jwtService.verify(accessToken, {
         secret: process.env.JWT_SECRET,
@@ -98,7 +100,7 @@ export class UserService {
       return {
         statusCode: 200
       }
-    } catch (err) {
+    } catch {
       throw new UnauthorizedException('Token inválido');
     }
   }

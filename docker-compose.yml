@@ -12,9 +12,8 @@ services:
     build:
       context: ./backend
     container_name: nestjs
-    environment:
-      MONGO_URL: "mongodb://mongo:27017/desafio-gdash"
-      PORT: 3000
+    env_file:
+      - ./backend/.env
     ports:
       - "3000:3000"
     depends_on:
@@ -24,8 +23,8 @@ services:
     build:
       context: ./queue
     container_name: goqueue
-    environment:
-      RABBITMQ_URL: "amqp://admin:admin@rabbitmq:5672/"
+    env_file:
+      - ./queue/.env
     depends_on:
       - rabbitmq
       - backend
@@ -44,10 +43,8 @@ services:
     build:
       context: ./python
     container_name: python-producer
-    environment:
-      RABBITMQ_URL: "amqp://admin:admin@rabbitmq:5672/"
-      CITY_LAT: "-23.550520"
-      CITY_LON: "-46.633308"
+    env_file:
+      - ./python/.env
     depends_on:
       - rabbitmq
     restart: always
