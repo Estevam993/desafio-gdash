@@ -1,13 +1,13 @@
 import './App.css'
 
-import {type ReactNode, useEffect, useState} from "react";
-import {Navigate, Route, Routes} from "react-router-dom";
+import {useEffect, useState} from "react";
+import {Navigate, Outlet, Route, Routes} from "react-router-dom";
 import {Dashboard, Home, Register} from "@/pages";
 import {Toaster} from "sonner";
 import {getCookie} from "@/utils/http.ts";
 import {useLoginServices} from "@/services";
 
-function PrivateRoute({children}: { children: ReactNode, }) {
+function PrivateRoute() {
   const {verifyToken} = useLoginServices();
   const [isLoading, setIsLoading] = useState(true);
   const [authorized, setAuthorized] = useState(false);
@@ -38,7 +38,7 @@ function PrivateRoute({children}: { children: ReactNode, }) {
 
   if (isLoading) return null;
 
-  return authorized ? children : <Navigate to="/"/>;
+  return authorized ? <Outlet/> : <Navigate to="/" replace/>;
 }
 
 function App() {
@@ -50,14 +50,10 @@ function App() {
         <Route path="/" element={<Home/>}/>
         <Route path="/register" element={<Register/>}/>
 
-        <Route
-          path="/dashboard"
-          element={
-            <PrivateRoute>
-              <Dashboard/>
-            </PrivateRoute>
-          }
-        />
+
+        <Route element={<PrivateRoute/>}>
+          <Route path="/dashboard" element={<Dashboard/>}/>
+        </Route>
       </Routes>
     </>
   )

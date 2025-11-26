@@ -7,10 +7,7 @@ type bars = {
 
 type CustomChartPropType = {
   config: ChartConfig;
-  data: Array<Record<string, {
-    day: string;
-    time: string;
-  } | number>>;
+  data: Array<Record<string, number | { day: string; time: string }>>;
   axisKey: string;
   bars: bars;
 };

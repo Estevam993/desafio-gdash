@@ -14,34 +14,34 @@ import useDashboardServices from "../services/useDashboardServices.tsx";
 import {useEffect, useState} from "react";
 
 const weatherSchema = {
-  temperature: {
+  temperature: [{
     temperature: 0,
     time: {
       day: "",
       time: ""
     }
-  },
-  humidity: {
+  }],
+  humidity: [{
     humidity: 0,
     time: {
       day: "",
       time: ""
     }
-  },
-  precipitation: {
+  }],
+  precipitation: [{
     precipitation: 0,
     time: {
       day: "",
       time: ""
     }
-  },
-  windSpeed: {
+  }],
+  windSpeed: [{
     wind_speed: 0,
     time: {
       day: "",
       time: ""
     }
-  },
+  }],
 }
 
 export default function Dashboard() {
