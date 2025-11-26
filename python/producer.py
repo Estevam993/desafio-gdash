@@ -22,7 +22,7 @@ def job():
 if __name__ == "__main__":
     scheduler = BlockingScheduler()
 
-    scheduler.add_job(job, "interval", seconds=20)
+    scheduler.add_job(job, "interval", seconds=120)
 
     print("Producer iniciado... (Ctrl + C para parar)")
     scheduler.start()

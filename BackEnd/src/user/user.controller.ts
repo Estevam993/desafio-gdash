@@ -23,4 +23,10 @@ export class UserController {
   ) {
     return this.userService.create(createUserDto);
   }
+
+  @Post('verify_token')
+  async verifyToken(@Body() body: { token: string}) {
+    return await this.userService.verifyAccessToken(body.token);
+  }
+
 }

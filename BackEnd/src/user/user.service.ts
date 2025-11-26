@@ -19,7 +19,7 @@ export class UserService {
     email: string,
     password: string
   ) {
-    const user: User | null = await this.userModel.findOne({ email }).exec();
+    const user: User | null = await this.userModel.findOne({email}).exec();
 
     if (user) {
       const isPasswordValid = compareSync(password, user.password);
@@ -89,7 +89,17 @@ export class UserService {
     }
   }
 
-  async findAll(): Promise<User[]> {
-    return this.userModel.find().exec();
+  async verifyAccessToken(accessToken: string) {
+    try {
+      this.jwtService.verify(accessToken, {
+        secret: process.env.JWT_SECRET,
+      });
+
+      return {
+        statusCode: 200
+      }
+    } catch (err) {
+      throw new UnauthorizedException('Token inválido');
+    }
   }
 }

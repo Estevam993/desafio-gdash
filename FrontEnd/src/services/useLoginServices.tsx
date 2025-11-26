@@ -57,8 +57,22 @@ export default function useLoginServices() {
     await LoginUser(data)
   }
 
+  const verifyToken = async (token: string | undefined) => {
+    try {
+      return await postRequest({
+        url: apiUrl + 'user/verify_token',
+        data: {token}
+      })
+
+    } catch {
+      return {
+        "statusCode": 500
+      }
+    }
+  }
+
 
   return {
-    onChange, onSubmit, form, setForm, error, setError, canSubmit, setCanSubmit
+    onChange, onSubmit, form, setForm, error, setError, canSubmit, setCanSubmit, verifyToken
   }
 }

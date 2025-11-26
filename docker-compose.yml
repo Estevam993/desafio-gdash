@@ -28,6 +28,7 @@ services:
       RABBITMQ_URL: "amqp://admin:admin@rabbitmq:5672/"
     depends_on:
       - rabbitmq
+      - backend
     restart: always
 
   mongo:
