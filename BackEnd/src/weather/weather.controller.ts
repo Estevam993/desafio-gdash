@@ -1,6 +1,7 @@
-import { Controller, Get, Post, Body} from '@nestjs/common';
+import {Controller, Get, Post, Body, UseGuards} from '@nestjs/common';
 import { WeatherService } from './weather.service';
 import { CreateWeatherDto } from './dto/create-weather.dto';
+import {JwtAuthGuard} from "../user/jwt-auth.guard";
 
 @Controller('weather')
 export class WeatherController {
@@ -12,6 +13,7 @@ export class WeatherController {
   }
 
   @Get()
+  @UseGuards(JwtAuthGuard)
   findAll() {
     return this.weatherService.getLastWeatherLog();
   }

@@ -1,10 +1,24 @@
-import {Weather} from "../entities/weather.entity";
+type WeatherLog<K extends string> = {
+  [key in K]: number;
+} & { time: { day: string, time: string } };
+
+type TemperatureLog = WeatherLog<"temperature">;
+type HumidityLog = WeatherLog<"humidity">;
+type WindLog = WeatherLog<"wind_speed">;
+type PrecipitationLog = WeatherLog<"precipitation">;
+
+type FormattedWeatherLogReturnType = {
+  temperature: TemperatureLog[];
+  humidity: HumidityLog[];
+  windSpeed: WindLog[];
+  precipitation: PrecipitationLog[];
+};
 
 type getLastWeatherLogReturnType = {
-  lastWeatherLog?: Weather[];
+  formatedWeatherLog?: FormattedWeatherLogReturnType;
   response?: string;
   code_status: 'success' | 'error';
   message?: string;
 }
 
-export default getLastWeatherLogReturnType;
+export type {getLastWeatherLogReturnType, FormattedWeatherLogReturnType};

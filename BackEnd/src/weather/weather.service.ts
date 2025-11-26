@@ -5,7 +5,7 @@ import {Weather} from "./entities/weather.entity";
 import {Model} from "mongoose";
 import {IaService} from "../ia/ia.service";
 import createWeatherReturnType from "./types/createWeatherReturnType";
-import getLastWeatherLogReturnType from "./types/getLastWeatherLogReturnType";
+import {FormattedWeatherLogReturnType, getLastWeatherLogReturnType} from "./types/getLastWeatherLogReturnType";
 
 @Injectable()
 export class WeatherService {
@@ -47,11 +47,12 @@ export class WeatherService {
         .limit(20)
         .exec();
 
-      const prompt: string = "Faça uma análise meteorológica do seguinte clima:" + JSON.stringify(lastWeatherLog)
+      const prompt: string = "Faça uma análise meteorológicade são paulo, em que usuarios que apenas querem saber o que devem utilizar de vestimenta, e o que fazer no dia (não é necessario fornecer dados exatos sobre o clima, apenas a análise) : " + JSON.stringify(lastWeatherLog)
 
       const response = await this.iaService.generateResponse(prompt);
+      const formatedWeatherLog = this.formatWeatherLog(lastWeatherLog);
 
-      return {lastWeatherLog, response, code_status: 'success'};
+      return {formatedWeatherLog, response, code_status: 'success'};
     } catch (error) {
       const message = error instanceof Error ? error.message : error;
       return {
@@ -59,5 +60,47 @@ export class WeatherService {
         message
       }
     }
+  }
+
+  formatWeatherLog(weather: Weather[]): FormattedWeatherLogReturnType {
+    const temperature = weather.map(w => ({
+      temperature: Math.round(w.temperature),
+      time: this.formatDate(w.timestamp)
+    }));
+    const humidity = weather.map(w => ({
+      humidity: Math.round(w.humidity),
+      time: this.formatDate(w.timestamp)
+    }));
+    const windSpeed = weather.map(w => ({
+      wind_speed: Math.round(w.wind_speed),
+      time: this.formatDate(w.timestamp)
+    }));
+    const precipitation = weather.map(w => ({
+      precipitation: Math.round(w.precipitation_probability * 100),
+      time: this.formatDate(w.timestamp)
+    }));
+
+    return {
+      temperature,
+      humidity,
+      precipitation,
+      windSpeed,
+    }
+  }
+
+  formatDate(raw) {
+    const normalized = raw.replace(/\.\d{6}/, m => "." + m.slice(1, 4));
+    const date = new Date(normalized);
+
+    const day = String(date.getDate()).padStart(2, "0");
+    const month = String(date.getMonth() + 1).padStart(2, "0");
+    const year = date.getFullYear();
+
+    const hours = String(date.getHours()).padStart(2, "0");
+    const minutes = String(date.getMinutes()).padStart(2, "0");
+
+    return {
+      day: `${day}/${month}/${year}`, time: `${hours}:${minutes}`
+    };
   }
 }

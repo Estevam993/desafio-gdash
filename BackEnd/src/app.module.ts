@@ -5,18 +5,18 @@ import {ConfigModule} from '@nestjs/config';
 import {MongooseModule} from '@nestjs/mongoose';
 import {UserModule} from './user/user.module';
 import {WeatherModule} from './weather/weather.module';
-import { IaModule } from './ia/ia.module';
+import {IaModule} from './ia/ia.module';
 
 @Module({
   imports: [
-      ConfigModule.forRoot({
-        isGlobal: true,
-      }),
-      MongooseModule.forRoot(process.env.MONGO_URL),
-      UserModule,
-      WeatherModule,
-      IaModule
-    ],
+    ConfigModule.forRoot({
+      isGlobal: true,
+    }),
+    MongooseModule.forRoot(process.env.MONGO_URL),
+    UserModule,
+    WeatherModule,
+    IaModule
+  ],
   controllers: [AppController],
   providers: [AppService],
 })
