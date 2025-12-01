@@ -20,6 +20,9 @@ export class Weather {
 
   @Prop({ required: true })
   timestamp: string
+
+  @Prop({ required: false })
+  is_day: string
 }
 
 export const WeatherSchema = SchemaFactory.createForClass(Weather);

@@ -1,8 +1,35 @@
 import type {ChartConfig} from "@/components/ui/chart.tsx";
 import {getRequest} from "@/utils/http.ts";
 import {useToast} from "@/services/index.ts";
+import getBackEndUrl from "@/services/getBackEndUrl.ts";
+import {useState} from "react";
+import {type ColumnDef} from "@tanstack/react-table";
 
-const apiUrl = import.meta.env.VITE_NEST_API_URL;
+import {
+  IconCloudBolt,
+  IconSnowflake,
+  IconSunFilled,
+  IconTree,
+  IconUmbrellaFilled,
+  IconUmbrellaOff
+} from "@tabler/icons-react";
+import type {IconRule} from "@/types/IconRule.ts"
+import type {DashboardServicesReturn} from "@/types/DashboardTypes.ts"
+import weatherLogSchema from "@/schemas/weatherLogSchema.ts";
+
+// Functions
+const getIcon = (num: number, icons: IconRule[]) => {
+  const item = icons.find(rule => rule.match(num));
+  return item?.icon ?? null;
+};
+
+const getColor = (num: number, icons: IconRule[]) => {
+  const item = icons.find(rule => rule.match(num));
+  return item?.color ?? '#fff';
+}
+
+// Constants
+const apiUrl = getBackEndUrl()
 
 const temperatureConfig = {
   temperature: {
@@ -60,14 +87,86 @@ const precipitationBars = [
   }
 ]
 
-export default function useDashboardServices() {
+const temperatureIcons: IconRule[] = [
+  {
+    icon: <IconSunFilled/>,
+    color: "#deab63",
+    match: (temp: number) => temp >= 24,
+  },
+  {
+    icon: <IconSnowflake/>,
+    color: "#90dafa",
+    match: (temp: number) => temp <= 14,
+  },
+  {
+    icon: <IconTree/>,
+    color: "#90faa2",
+    match: (temp: number) => temp > 14 && temp < 24,
+  }
+];
+
+const humidityIcons: IconRule[] = [
+  {
+    icon: <IconCloudBolt/>,
+    color: "#8d8d8d",
+    match: (hum: number) => hum >= 75,
+  },
+  {
+    icon: <IconUmbrellaFilled/>,
+    color: "#8aacbd",
+    match: (hum: number) => hum >= 25,
+  },
+  {
+    icon: <IconUmbrellaOff/>,
+    color: "#ffffff",
+    match: (hum: number) => hum < 25,
+  },
+]
+
+
+const columns: ColumnDef[] = [
+  {
+    accessorKey: "time",
+    header: "Hora",
+  },
+  {
+    accessorKey: "temperature",
+    header: "Temperatura",
+  },
+  {
+    accessorKey: "humidity",
+    header: "Humidade",
+  },
+  {
+    accessorKey: "windSpeed",
+    header: "Velocidade do Vento",
+  },
+  {
+    accessorKey: "precipitation",
+    header: "Chance de Precipitação",
+  },
+]
+
+export default function useDashboardServices(): DashboardServicesReturn {
+  // Hooks
+  const [weather, setWeather] = useState(weatherLogSchema)
+  const [weatherTable, setWeatherTable] = useState([])
+  const [response, setResponse] = useState('')
   const {showToast} = useToast()
 
+  // Functions
   const getWeatherLogs = async () => {
     try {
-      return await getRequest({
+      const response = await getRequest({
         url: apiUrl + 'weather',
       })
+
+      if (response.code_status === 'error')
+        showToast(
+          'Erro ao obter informações sobre o clima.',
+          'error'
+        )
+      else return response
 
     } catch (error) {
       showToast(
@@ -79,16 +178,26 @@ export default function useDashboardServices() {
     }
   }
 
-
   return {
     temperatureConfig,
-    temperatureBars,
     windSpeedConfig,
-    windSpeedBars,
     humidityConfig,
-    humidityBars,
     precipitationConfig,
+    windSpeedBars,
+    humidityBars,
+    temperatureBars,
     precipitationBars,
-    getWeatherLogs
+    getWeatherLogs,
+    weather,
+    setWeather,
+    response,
+    setResponse,
+    temperatureIcons,
+    humidityIcons,
+    getIcon,
+    getColor,
+    weatherTable,
+    setWeatherTable,
+    columns
   }
 }

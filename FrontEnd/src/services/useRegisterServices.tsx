@@ -3,8 +3,9 @@ import type {RegisterApiReturn, RegisterErrorType, RegisterFormType} from "@/typ
 import {useToast} from "@/services";
 import {useNavigate} from "react-router-dom";
 import {useState} from "react";
+import getBackEndUrl from "@/services/getBackEndUrl.ts";
 
-const apiUrl = import.meta.env.VITE_NEST_API_URL;
+const apiUrl = getBackEndUrl()
 
 const registerFormSchema = {
   email: '',

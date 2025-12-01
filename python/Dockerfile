@@ -2,7 +2,7 @@ FROM python:3.11-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y gcc && apt-get clean
+RUN apt-get update && apt-get install -y gcc bash && apt-get clean
 
 COPY requirements.txt .
 
@@ -10,4 +10,8 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-CMD ["python", "producer.py"]
+# Torna o wrapper executável
+RUN chmod +x wrapper.sh
+
+# Usa o wrapper como entrypoint
+CMD ["python", "-u", "producer.py"]

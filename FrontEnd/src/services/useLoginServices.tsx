@@ -3,8 +3,9 @@ import {useState} from "react";
 import type {LoginApiReturn, LoginErrorType, LoginFormType} from "@/types/LoginFormTypes.ts";
 import {postRequest, setCookie} from "@/utils/http.ts";
 import {useToast} from "@/services/index.ts";
+import getBackEndUrl from "@/services/getBackEndUrl.ts";
 
-const apiUrl = import.meta.env.VITE_NEST_API_URL;
+const apiUrl = getBackEndUrl()
 
 const loginFormSchema = {
   email: '',

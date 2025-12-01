@@ -18,7 +18,13 @@ def fetch_weather():
     params = {
         "latitude": LAT,
         "longitude": LON,
-        "hourly": ["temperature_2m", "relative_humidity_2m", "wind_speed_10m", "precipitation_probability"],
+        "hourly": [
+            "temperature_2m", 
+            "relative_humidity_2m", 
+            "wind_speed_10m", 
+            "precipitation_probability", 
+            "is_day"
+            ],
     }
 
     responses = client.weather_api(url, params=params)
@@ -30,11 +36,13 @@ def fetch_weather():
     humidity = float(hourly.Variables(1).ValuesAsNumpy()[0])
     wind_speed = float(hourly.Variables(2).ValuesAsNumpy()[0])
     rain_probability = float(hourly.Variables(3).ValuesAsNumpy()[0])
+    is_day = float(hourly.Variables(4).ValuesAsNumpy()[0])
 
     return {
         "temperature": temperature,
         "humidity": humidity,
         "wind_speed": wind_speed,
         "rain_probability": rain_probability,
-        "timestamp": datetime.utcnow().isoformat()
+        "timestamp": datetime.utcnow().isoformat(),
+        "is_day": is_day
     }

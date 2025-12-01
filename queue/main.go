@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/go-resty/resty/v2"
 	amqp "github.com/rabbitmq/amqp091-go"
@@ -26,16 +27,11 @@ type WeatherPayload struct {
 }
 
 func main() {
-	rabbitURL := getEnv("RABBITMQ_URL", "amqp://guest:guest@localhost:5672/")
 	nestAPI := getEnv("NEST_API_URL", "http://backend:3000/")
 
 	fmt.Println("📡 Conectando ao RabbitMQ...")
 
-	conn, err := amqp.Dial(rabbitURL)
-
-	if err != nil {
-		panic(err)
-	}
+	conn := connectRabbit()
 
 	defer conn.Close()
 
@@ -55,7 +51,13 @@ func main() {
 	client := resty.New()
 	fmt.Println("🚀 Worker iniciado. Aguardando mensagens...")
 
+	errorCount := 0
+
 	for msg := range msgs {
+		if errorCount > 10 {
+			break
+		}
+
 		fmt.Println("\n📩 Mensagem recebida")
 		fmt.Println("→ Enviando para:", nestAPI+"weather/logs")
 
@@ -75,6 +77,7 @@ func main() {
 		if err != nil {
 			log.Println("❌ Falha ao enviar para API:", err)
 			msg.Nack(false, true)
+			errorCount++
 			continue
 		}
 
@@ -89,10 +92,31 @@ func main() {
 	}
 
 }
+
 func getEnv(key, fallback string) string {
 	v := os.Getenv(key)
 	if v == "" {
 		return fallback
 	}
 	return v
+}
+
+func connectRabbit() *amqp.Connection {
+	var conn *amqp.Connection
+	var err error
+
+	for {
+		log.Println("📡 Conectando ao RabbitMQ...")
+
+		rabbitURL := getEnv("RABBITMQ_URL", "amqp://admin:admin@localhost:5672/")
+
+		conn, err = amqp.Dial(rabbitURL)
+		if err == nil {
+			log.Println("✅ Conectado ao RabbitMQ!")
+			return conn
+		}
+
+		log.Println("❌ Erro ao conectar:", err)
+		time.Sleep(5 * time.Second)
+	}
 }

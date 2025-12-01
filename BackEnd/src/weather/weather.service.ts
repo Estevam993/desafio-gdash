@@ -5,7 +5,11 @@ import {Weather} from "./entities/weather.entity";
 import {Model} from "mongoose";
 import {IaService} from "../ia/ia.service";
 import createWeatherReturnType from "./types/createWeatherReturnType";
-import {FormattedWeatherLogReturnType, getLastWeatherLogReturnType} from "./types/getLastWeatherLogReturnType";
+import {
+  FormatedWeatherTable,
+  FormattedWeatherLogReturnType,
+  getLastWeatherLogReturnType
+} from "./types/getLastWeatherLogReturnType";
 
 @Injectable()
 export class WeatherService {
@@ -18,7 +22,6 @@ export class WeatherService {
   }
 
   async create(createWeatherDto: CreateWeatherDto): Promise<createWeatherReturnType> {
-
     try {
       const createWeatherLog = new this.weatherModel(createWeatherDto);
 
@@ -47,12 +50,19 @@ export class WeatherService {
         .limit(20)
         .exec();
 
+      if (lastWeatherLog.length == 0)
+        return {
+          code_status: 'error',
+          message: "Nenhum dado sobre o clima foi encontrado"
+        }
+
       const prompt: string = "Faça uma análise meteorológicade são paulo, em que usuarios que apenas querem saber o que devem utilizar de vestimenta, e o que fazer no dia (não é necessario fornecer dados exatos sobre o clima, apenas a análise) : " + JSON.stringify(lastWeatherLog)
 
-      const response = await this.iaService.generateResponse(prompt);
+      const response = await this.getIaMessage(prompt);
       const formatedWeatherLog = this.formatWeatherLog(lastWeatherLog);
 
-      return {formatedWeatherLog, response, code_status: 'success'};
+      const formatedWeatherTable = this.formatWeatherTable(lastWeatherLog);
+      return {formatedWeatherLog, formatedWeatherTable, response, code_status: 'success'};
     } catch (error) {
       const message = error instanceof Error ? error.message : error;
       return {
@@ -80,12 +90,37 @@ export class WeatherService {
       time: this.formatDate(w.timestamp)
     }));
 
+    const actualTemperature = weather.length > 0
+      ? Math.round(weather[weather.length - 1].temperature)
+      : null;
+
+    const actualHumidity = weather.length > 0
+      ? Math.round(weather[weather.length - 1].humidity)
+      : null;
+
+    const actualRegisterHour = weather.length > 0
+      ? this.formatDate(weather[0].timestamp)
+      : null;
+
     return {
       temperature,
       humidity,
       precipitation,
       windSpeed,
+      actualTemperature,
+      actualHumidity,
+      actualRegisterHour,
     }
+  }
+
+  formatWeatherTable(weather: Weather[]): FormatedWeatherTable[] {
+    return weather.map(w => ({
+      temperature: Math.round(w.temperature) + " º",
+      humidity: Math.round(w.humidity) + " %",
+      precipitation: Math.round(w.precipitation_probability * 100) + " %",
+      windSpeed: Math.round(w.wind_speed) + " km/h",
+      time: this.formatDate(w.timestamp).day + " " + this.formatDate(w.timestamp).time,
+    }))
   }
 
   formatDate(raw) {
@@ -102,5 +137,13 @@ export class WeatherService {
     return {
       day: `${day}/${month}/${year}`, time: `${hours}:${minutes}`
     };
+  }
+
+  async getIaMessage(prompt: string): Promise<string> {
+    try {
+      return await this.iaService.generateResponse(prompt);
+    } catch {
+      return "Erro ao se comunicar com Groq"
+    }
   }
 }
