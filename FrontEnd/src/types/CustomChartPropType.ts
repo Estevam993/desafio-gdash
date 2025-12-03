@@ -5,11 +5,20 @@ type bars = {
   fill: string;
 }[]
 
+type TimeInfo = {
+  day: string;
+  time: string;
+};
+
 type CustomChartPropType = {
-  config: ChartConfig;
-  data: Array<Record<string, number | { day: string; time: string }>>;
+  config: Partial<ChartConfig>;
+  data: Array<Record<string, number | TimeInfo>>;
   axisKey: string;
   bars: bars;
 };
 
-export type {CustomChartPropType};
+type WeatherEntry = {
+  time: TimeInfo;
+} & Record<string, number>;
+
+export type {CustomChartPropType, WeatherEntry};

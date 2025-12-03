@@ -1,6 +1,7 @@
 import {type ColumnDef, flexRender, getCoreRowModel, useReactTable,} from "@tanstack/react-table"
 
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table"
+import type {JSX} from "react";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -69,7 +70,13 @@ interface DataTableProps<TData, TValue> {
  * @returns {JSX.Element}
  *   Retorna uma tabela estilizada e totalmente funcional.
  */
-export default function CustomDataTable<TData, TValue>({columns, data,}: DataTableProps<TData, TValue>) {
+export default function CustomDataTable<
+  TData extends { id: string },
+  TValue
+>({
+    columns,
+    data,
+}: DataTableProps<TData, TValue>): JSX.Element {
 
   // eslint-disable-next-line react-hooks/incompatible-library
   const table = useReactTable({

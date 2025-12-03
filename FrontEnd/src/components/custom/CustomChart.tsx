@@ -1,4 +1,5 @@
 import {
+  type ChartConfig,
   ChartContainer,
   ChartLegend,
   ChartLegendContent,
@@ -6,7 +7,41 @@ import {
   ChartTooltipContent
 } from "@/components/ui/chart.tsx";
 import {Bar, BarChart, CartesianGrid, XAxis} from "recharts";
-import type {CustomChartPropType} from "@/types/CustomChartPropType.ts";
+import type {CustomChartPropType, WeatherEntry} from "@/types/CustomChartPropType.ts";
+
+function buildTimestamp(item: WeatherEntry): number {
+  const day = item.time?.day;
+  const hour = item.time?.time;
+
+  if (!day || !hour) return 0;
+
+  const [d, m, y] = day.split("/").map(Number);
+  const [hh, mm] = hour.split(":").map(Number);
+
+  return new Date(y, m - 1, d, hh, mm).getTime();
+}
+
+function normalizeConfig(config: Partial<ChartConfig>): ChartConfig {
+  const defaultConfig: ChartConfig = {
+    default: {
+      label: "",
+      icon: undefined,
+      theme: {
+        light: "#cccccc",
+        dark: "#444444",
+      }
+    }
+  }
+
+  const cleanEntries = Object.entries(config).filter(
+    ([, v]) => v !== undefined
+  );
+
+  return Object.fromEntries([
+    ...Object.entries(defaultConfig),
+    ...cleanEntries
+  ]) as ChartConfig;
+}
 
 /**
  * CustomChart
@@ -50,9 +85,15 @@ import type {CustomChartPropType} from "@/types/CustomChartPropType.ts";
  * />
  */
 export default function CustomChart({config, data, axisKey, bars}: CustomChartPropType) {
+  const fullConfig = normalizeConfig(config);
+
+  const sortedData = (data as WeatherEntry[]).sort(
+    (a, b) => buildTimestamp(a) - buildTimestamp(b)
+  );
+
   return (
-    <ChartContainer config={config} className="min-h-[200px] w-full">
-      <BarChart accessibilityLayer data={data}>
+    <ChartContainer config={fullConfig} className="min-h-[200px] w-full">
+      <BarChart accessibilityLayer data={sortedData}>
         <CartesianGrid vertical={false}/>
         <XAxis
           dataKey={axisKey}

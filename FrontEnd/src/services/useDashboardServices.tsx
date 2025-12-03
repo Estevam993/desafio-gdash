@@ -5,28 +5,15 @@ import getBackEndUrl from "@/services/getBackEndUrl.ts";
 import {useState} from "react";
 import {type ColumnDef} from "@tanstack/react-table";
 
-import {
-  IconCloudBolt,
-  IconSnowflake,
-  IconSunFilled,
-  IconTree,
-  IconUmbrellaFilled,
-  IconUmbrellaOff
-} from "@tabler/icons-react";
 import type {IconRule} from "@/types/IconRule.ts"
-import type {DashboardServicesReturn} from "@/types/DashboardTypes.ts"
+import type {DashboardServicesReturn, FormatedWeatherTable} from "@/types/DashboardTypes.ts"
 import weatherLogSchema from "@/schemas/weatherLogSchema.ts";
 
 // Functions
-const getIcon = (num: number, icons: IconRule[]) => {
-  const item = icons.find(rule => rule.match(num));
+const getIcon = <T,>(value: T, icons: IconRule<T>[]) => {
+  const item = icons.find(rule => rule.match(value));
   return item?.icon ?? null;
 };
-
-const getColor = (num: number, icons: IconRule[]) => {
-  const item = icons.find(rule => rule.match(num));
-  return item?.color ?? '#fff';
-}
 
 // Constants
 const apiUrl = getBackEndUrl()
@@ -87,44 +74,44 @@ const precipitationBars = [
   }
 ]
 
-const temperatureIcons: IconRule[] = [
+const temperatureIcons: IconRule<number>[] = [
   {
-    icon: <IconSunFilled/>,
-    color: "#deab63",
+    icon: "/images/sun.jpg",
     match: (temp: number) => temp >= 24,
   },
   {
-    icon: <IconSnowflake/>,
-    color: "#90dafa",
+    icon: "/images/snow.jpg",
     match: (temp: number) => temp <= 14,
   },
   {
-    icon: <IconTree/>,
-    color: "#90faa2",
+    icon: "/images/trees.jpg",
     match: (temp: number) => temp > 14 && temp < 24,
   }
 ];
 
-const humidityIcons: IconRule[] = [
+const humidityIcons: IconRule<number>[] = [
   {
-    icon: <IconCloudBolt/>,
-    color: "#8d8d8d",
-    match: (hum: number) => hum >= 75,
-  },
-  {
-    icon: <IconUmbrellaFilled/>,
-    color: "#8aacbd",
+    icon: "/images/rain.jpg",
     match: (hum: number) => hum >= 25,
   },
   {
-    icon: <IconUmbrellaOff/>,
-    color: "#ffffff",
+    icon: "/images/sun.jpg",
     match: (hum: number) => hum < 25,
   },
 ]
 
+const isDayIcons: IconRule<boolean>[] = [
+  {
+    icon: "/images/night.webp",
+    match: (day: boolean) => !day,
+  },
+  {
+    icon: "/images/sun.jpg",
+    match: (day: boolean) => day,
+  },
+]
 
-const columns: ColumnDef[] = [
+const columns: ColumnDef<FormatedWeatherTable>[] = [
   {
     accessorKey: "time",
     header: "Hora",
@@ -149,8 +136,9 @@ const columns: ColumnDef[] = [
 
 export default function useDashboardServices(): DashboardServicesReturn {
   // Hooks
+
   const [weather, setWeather] = useState(weatherLogSchema)
-  const [weatherTable, setWeatherTable] = useState([])
+  const [weatherTable, setWeatherTable] = useState<FormatedWeatherTable[]>([])
   const [response, setResponse] = useState('')
   const {showToast} = useToast()
 
@@ -194,8 +182,8 @@ export default function useDashboardServices(): DashboardServicesReturn {
     setResponse,
     temperatureIcons,
     humidityIcons,
+    isDayIcons,
     getIcon,
-    getColor,
     weatherTable,
     setWeatherTable,
     columns

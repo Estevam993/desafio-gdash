@@ -1,11 +1,30 @@
-
+import type {Dispatch, SetStateAction} from "react";
 import type {IconRule} from "@/types/IconRule.ts"
+import type {ChartConfig} from "@/components/ui/chart.tsx";
+import {weatherLogSchema} from "@/schemas"
+import type {ColumnDef} from "@tanstack/react-table";
 
 type barsConfig =
   {
     key: string,
     fill: string
   }
+
+type FormatedWeatherTable = {
+  id: string;
+  temperature: string;
+  humidity: string;
+  windSpeed: string;
+  precipitation: string;
+  time: string
+}
+
+type WeatherPromise = {
+  code_status: "success" | "error";
+  formatedWeatherLog: typeof weatherLogSchema;
+  response: string;
+  formatedWeatherTable: FormatedWeatherTable[];
+}
 
 type DashboardServicesReturn = {
   temperatureConfig: Partial<ChartConfig>;
@@ -16,17 +35,18 @@ type DashboardServicesReturn = {
   windSpeedBars: barsConfig[];
   humidityBars: barsConfig[];
   precipitationBars: barsConfig[];
-  getWeatherLogs: () => Promise<object | null>;
-  weather: typeof weatherSchema;
-  setWeather: (weather: typeof weatherSchema) => void
-  weatherTable: Array;
-  setWeatherTable: (weatherTable: Array) => void;
+  getWeatherLogs: () => Promise<WeatherPromise | null>;
+  weather: typeof weatherLogSchema;
+  setWeather: (weather: typeof weatherLogSchema) => void
+  weatherTable: FormatedWeatherTable[];
+  setWeatherTable: Dispatch<SetStateAction<FormatedWeatherTable[]>>;
   response: string;
   setResponse: (response: string) => void;
-  temperatureIcons: IconRule[];
-  humidityIcons: IconRule[];
-  getIcon: (num: number, icons: IconRule[]) => JSX.Element | null;
-  getColor: (num: number, icons: IconRule[]) =>  string | undefined ;
+  temperatureIcons: IconRule<number>[];
+  humidityIcons: IconRule<number>[];
+  isDayIcons: IconRule<boolean>[];
+  getIcon: <T,>(value: T, icons: IconRule<T>[]) => string | null;
+  columns: ColumnDef<FormatedWeatherTable>[]
 }
 
-export type {DashboardServicesReturn}
+export type {DashboardServicesReturn, FormatedWeatherTable}

@@ -13,8 +13,8 @@ export default function DashboardHeaders() {
     setResponse,
     temperatureIcons,
     humidityIcons,
+    isDayIcons,
     getIcon,
-    getColor,
   } = useDashboardServices()
 
   // Effects
@@ -47,30 +47,27 @@ export default function DashboardHeaders() {
   return (
     <div className={"grid lg:grid-cols-4 sm:grid-cols-2 xs:grid-cols-1 overflow-auto gap-4 w-full"}>
       <CustomCardDashboard
-        className={""}
         title={"Hora do ultimo Registro"}
         text={`${weather.actualRegisterHour.day} ${weather.actualRegisterHour.time}`}
       />
 
       <CustomCardDashboard
-        className=""
         title="Temperatura atual"
+        className={"text-white"}
         text={`${weather.actualTemperature} º`}
         icon={getIcon(weather.actualTemperature, temperatureIcons)}
-        color={getColor(weather.actualTemperature, temperatureIcons)}
       />
 
       <CustomCardDashboard
-        className={""}
         title={"Humidade atual"}
+        className={"text-white"}
         text={`${weather.actualHumidity} %`}
         icon={getIcon(weather.actualHumidity, humidityIcons)}
-        color={getColor(weather.actualHumidity, humidityIcons)}
       />
 
       <CustomCardDashboard
-        className={"p-0 flex justify-center items-center"}
-        color={isDay ? "#6691e1" : "#000"}
+        className={"p-0 flex justify-center items-center text-white"}
+        icon={getIcon(isDay, isDayIcons)}
         text={
           isDay ? <IconSunFilled color={"yellow"} size={"7rem"}/> : <IconMoonFilled color={"white"} size={"7rem"}/>
         }
